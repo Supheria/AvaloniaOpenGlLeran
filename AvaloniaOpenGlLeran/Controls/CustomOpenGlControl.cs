@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using Avalonia.Controls;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.Threading;
@@ -36,6 +37,7 @@ sealed unsafe class CustomOpenGlControl : OpenGlControlBase
     int _vertexShader;
     int _fragmentShader;
     int _shaderProgram;
+
     protected override void OnOpenGlInit(GlInterface gl)
     {
         base.OnOpenGlInit(gl);
@@ -95,7 +97,9 @@ sealed unsafe class CustomOpenGlControl : OpenGlControlBase
         gl.ClearColor(0, 0, 0, 1);
         gl.Clear(GL_COLOR_BUFFER_BIT);
 
-        gl.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
+        var toplevel = TopLevel.GetTopLevel(this);
+        var scaling = toplevel?.RenderScaling ?? 1;
+        gl.Viewport(0, 0, (int)(Bounds.Width * scaling), (int)(Bounds.Height * scaling));
 
         gl.DrawArrays(GL_TRIANGLES, 0, new IntPtr(3));
         gl.CheckError();
@@ -103,11 +107,11 @@ sealed unsafe class CustomOpenGlControl : OpenGlControlBase
 
     void CreateVertexBuffer(GlInterface gl)
     {
-        Vector3[] vertices = new Vector3[]
+        var vertices = new Vector3[]
         {
-            new Vector3(-1f, -1f, 0.0f),
-            new Vector3(1f, -1f, 0.0f),
-            new Vector3(0.0f, 1f, 0.0f),
+            new(-1f, -1f, 0.0f),
+            new(1f, -1f, 0.0f),
+            new(0.0f, 1f, 0.0f),
         };
 
         _vbo = gl.GenBuffer();
